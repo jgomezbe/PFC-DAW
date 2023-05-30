@@ -1,27 +1,28 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import '../static/css/NotFound.css';
-
-function NotFound(props) {
-    let message;
-    if (props.location.state && props.location.state.from === 'buscar-jugador') {
-        message = "No se encontró ningún jugador con ese nombre";
-    } else {
-        message = "Parece que estás perdido";
-    }
-
+import { Button } from "react-bootstrap";
+import Footer from "../components/Footer";
+import CustomNavbar from "../components/CustomNavbar";
+const NotFound = () => {
     return (
-        <div data-cy='pageBody'>
-            <h1 data-cy='pageHeader' className="cabecera">
-                Oh!
-            </h1>
-            <p data-cy='simpleMessage' className="parrafo">
-                {message}
-            </p>
-            <Link data-cy='homeLink' to='/' className="enlace">Volver a casa</Link>
-            <img src={require('../media/logo.png')} width="50px" height="50px" alt="logo"></img>
+        <div>
+            <CustomNavbar />
+            <div className="container">
+
+                <div className="text-center mt-5">
+                    <p className="lead">Página no encontrada</p>
+                    <p>La página que estás buscando no existe.</p>
+                    <Button variant="primary">
+                        <Link className="text-white" to="/">
+                            Volver a la página de inicio
+                        </Link>
+                    </Button>
+                </div>
+            </div>
+            <Footer />
+
         </div>
-    )
-}
+    );
+};
 
 export default NotFound;

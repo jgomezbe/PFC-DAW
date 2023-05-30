@@ -1,6 +1,9 @@
-from django.contrib.auth import get_user_model, authenticate
-from django.contrib.auth.models import User
+from .models import Transfer, TransferList
+from .models import TransferList, Transfer
 from rest_framework import serializers
+from django.contrib.auth.models import User
+from .models import Log
+from django.contrib.auth import get_user_model, authenticate
 from .models import Profile, ApprovalRequest
 
 
@@ -41,8 +44,8 @@ class RegisterSerializer(serializers.Serializer):
                 'El correo electrónico ya está en uso.')
         return data
 
-    def create(self, validated_data): user = User.objects.create_user(
-        first_name=validated_data['first_name'], last_name=validated_data['last_name'], username=validated_data['username'], email=validated_data['email'], password=validated_data['password']); return user
+    def create(self, validated_data): user = User.objects.create_user(first_name=validated_data['first_name'], last_name=validated_data[
+        'last_name'], username=validated_data['username'], email=validated_data['email'], password=validated_data['password']); return user
 
 
 User = get_user_model()
@@ -76,4 +79,30 @@ class ChangePasswordSerializer(serializers.Serializer):
 class ApprovalRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = ApprovalRequest
-        fields = ["id", "nombre", "apellidos", "mensaje"]
+        fields = ['id', 'nombre', 'apellidos', 'mensaje','user_id']
+
+
+class LogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Log
+        fields = ['date', 'script', 'changes_detected']
+
+
+class TransferSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Transfer
+        fields = '__all__'
+
+
+class TransferListSerializer(serializers.ModelSerializer):
+    transfers = serializers.SerializerMethodField()
+
+    class Meta:
+        model = TransferList
+        fields = ['id', 'name', 'transfers','user_id']
+
+    def get_transfers(self, instance):
+        transfers = instance.transfers.all()
+        sorted_transfers = sorted(transfers, key=lambda t: t.temporada, reverse=True)
+        transfer_serializer = TransferSerializer(sorted_transfers, many=True)
+        return transfer_serializer.data

@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import axios from "axios";
 import { API_URL } from "../config";
-import '../static/css/CustomNavbar.css';
+import "../static/css/CustomNavbar.css";
 
 function CustomNavbar() {
     const [user, setUser] = useState(null);
@@ -10,23 +10,21 @@ function CustomNavbar() {
     useEffect(() => {
         const fetchUser = async () => {
             try {
+                // Realiza una petición al servidor para obtener el usuario actual
                 const response = await axios.get(`${API_URL}/current-user/`, {
                     withCredentials: true,
                 });
                 setUser(response.data);
-            }
-
-
-            catch (error) {
+            } catch (error) {
                 console.error(error);
             }
         };
+
         fetchUser();
     }, []);
+
     return (
-
         <nav className="navbar navbar-expand-md navbar-custom bg-primary">
-
             <div className="container-fluid">
                 <button
                     className="navbar-toggler"
@@ -39,39 +37,105 @@ function CustomNavbar() {
                 >
                     <span className="navbar-toggler-icon"></span>
                 </button>
-
-                <div className="collapse navbar-collapse" id="navbarNav">
+                <div className="collapse navbar-collapse bg-primary" id="navbarNav">
                     <ul className="navbar-nav d-flex justify-content-between w-100">
-
-
-                        <li className="nav-item "><Link className="nav-link" to="/">Inicio</Link></li>
+                        <li className="nav-item">
+                            <Link className="nav-link" to="/">
+                                Inicio
+                            </Link>
+                        </li>
                         {!user && (
                             <>
-                                <li className="nav-item"><Link className="nav-link" to="/registro">Registro</Link></li>
-                                <li className="nav-item"><Link className="nav-link" to="/login">Iniciar sesión</Link></li>
+                                <li className="nav-item">
+                                    <Link className="nav-link" to="/registro">
+                                        Registro
+                                    </Link>
+                                </li>
+                                <li className="nav-item">
+                                    <Link className="nav-link" to="/login">
+                                        Iniciar sesión
+                                    </Link>
+                                </li>
                             </>
                         )}
                         {user && user.is_authenticated && !user.is_approved && (
                             <>
-                                <li className="nav-item"><Link className="nav-link" to="/solicitar-aprobacion">Solicitar aprobación</Link></li>
-                                <li className="nav-item"><Link className="nav-link" to="/logout">Cerrar sesión</Link></li>
+                                <li className="nav-item">
+                                    <Link className="nav-link" to="/solicitar-aprobacion">
+                                        Solicitar aprobación
+                                    </Link>
+                                </li>
+                                <li className="nav-item">
+                                    <Link className="nav-link" to="/logout">
+                                        Cerrar sesión
+                                    </Link>
+                                </li>
                             </>
                         )}
                         {user && user.is_authenticated && user.is_approved && !user.is_admin && (
                             <>
-                                <li className="nav-item"><Link className="nav-link" to={"/perfil/" + user.username}>Tu perfil</Link></li>
-                                <li className="nav-item"><Link className="nav-link" to="/buscar-jugadores">Búsqueda de jugadores</Link></li>
-                                <li className="nav-item"><Link className="nav-link" to="/logout">Cerrar sesión</Link></li>
+                                <li className="nav-item">
+                                    <Link className="nav-link" to={"/perfil/" + user.username}>
+                                        <img
+                                            src={`${API_URL}${user.profile.photo}`}
+                                            alt="Icono de usuario"
+                                            style={{
+                                                width: "40px",
+                                                height: "40px",
+                                                borderRadius: "50%",
+                                            }}
+                                        />
+                                        <span className="hover-text">Tu Perfil</span>
+                                    </Link>
+                                </li>
+                                <li className="nav-item">
+                                    <Link className="nav-link" to="/jugadores">
+                                        Jugadores y traspasos
+                                    </Link>
+                                </li>
+                                <li className="nav-item">
+                                    <Link className="nav-link" to="/logout">
+                                        Cerrar sesión
+                                    </Link>
+                                </li>
                             </>
                         )}
-                        {user && user.is_authenticated && user.is_approved && user.is_admin && (
-                            <>
-                                <li className="nav-item"><Link className="nav-link" to="/panel-admin/">Panel de administración</Link></li>
-                                <li className="nav-item"><Link className="nav-link" to={"/perfil/" + user.username}>Tu perfil</Link></li>
-                                <li className="nav-item"><Link className="nav-link" to="/buscar-jugadores">Búsqueda de jugadores</Link></li>
-                                <li className="nav-item"><Link className="nav-link" to="/logout">Cerrar sesión</Link></li>
-                            </>
-                        )}
+                        {user &&
+                            user.is_authenticated &&
+                            user.is_approved &&
+                            user.is_admin && (
+                                <>
+                                    <li className="nav-item">
+                                        <Link className="nav-link" to="/panel-admin/">
+                                            Panel de administración
+                                        </Link>
+                                    </li>
+                                    <li className="nav-item">
+                                        <Link className="nav-link" to={"/perfil/" + user.username}>
+                                            <img
+                                                src={`${API_URL}${user.profile.photo}`}
+                                                alt="Icono de usuario"
+                                                style={{
+                                                    width: "40px",
+                                                    height: "40px",
+                                                    borderRadius: "50%",
+                                                }}
+                                            />
+                                            <span className="hover-text">Tu Perfil</span>
+                                        </Link>
+                                    </li>
+                                    <li className="nav-item">
+                                        <Link className="nav-link" to="/jugadores">
+                                            Jugadores y traspasos
+                                        </Link>
+                                    </li>
+                                    <li className="nav-item">
+                                        <Link className="nav-link" to="/logout">
+                                            Cerrar sesión
+                                        </Link>
+                                    </li>
+                                </>
+                            )}
                     </ul>
                 </div>
             </div>

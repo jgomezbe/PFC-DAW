@@ -1,6 +1,5 @@
 import requests as Q
 import os as C
-import time as K
 import pandas as P
 from bs4 import BeautifulSoup as T
 from fake_useragent import UserAgent as S
@@ -9,7 +8,6 @@ J = str
 A = 'div'
 L = 'data'
 M = 'Nombre Jugador'
-U = K.time()
 V = S()
 W = {'user-agent': V.random}
 i = []
@@ -59,7 +57,3 @@ E = E.iloc[E[M].str.normalize('NFKD').argsort()]
 d = C.path.join(C.path.dirname(C.path.abspath(__file__)),
                 '..', L, 'cantera.csv')
 E.to_csv(d, index=False)
-e = K.time()
-f = e-U
-g, h = divmod(f, 60)
-print(f"Tiempo de ejecución: {g:.0f} minuto(s) y {h:.2f} segundo(s)")

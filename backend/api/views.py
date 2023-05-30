@@ -1,34 +1,32 @@
-from .models import User
-from django.db.models import Q
-from .serializers import RegisterSerializer, ProfileSerializer
+from .serializers import TransferListSerializer, TransferSerializer
+from django.db.models import Max, Q
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from django.utils.timezone import timedelta
+from datetime import datetime
+from ProyectoCanteraAPIReact import settings
+from rest_framework.response import Response
+from django.contrib.auth.models import User
+from rest_framework.views import APIView
+from django.shortcuts import get_object_or_404
+from django.contrib import messages
+from django.core.signing import Signer
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.storage import default_storage
+from unidecode import unidecode
+from django.http import Http404
+from rest_framework import status
 import hashlib
 import os
-from django.core.exceptions import ObjectDoesNotExist
-from django.core.signing import Signer
-from django.contrib import messages
-from django.shortcuts import get_object_or_404
-from rest_framework import status
-from rest_framework.views import APIView
-from django.contrib.auth.models import User
-from rest_framework.response import Response
-from ProyectoCanteraAPIReact import settings
-from rest_framework.permissions import IsAuthenticated
-from django.conf import settings
-from .serializers import ProfileSerializer
-from .models import Log
-from .models import ApprovalRequest
-from .serializers import ApprovalRequestSerializer
 from django.contrib.auth import authenticate, login, logout
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from .models import ApprovalRequest, Profile
-from .serializers import ChangePasswordSerializer, ProfileSerializer, RegisterSerializer, ApprovalRequestSerializer
+from .serializers import ChangePasswordSerializer, ProfileSerializer, RegisterSerializer, ApprovalRequestSerializer, TransferListSerializer
+from .models import ApprovalRequest, Log, ApprovalRequest, Transfer, Profile, TransferList
 
 
 class RegisterView(APIView):
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
+            # Crea un nuevo usuario y perfil asociado
             user = serializer.save()
             Profile.objects.create(user=user)
             login(request, user)
@@ -56,8 +54,12 @@ class LoginView(APIView):
 
 
 class LogoutView(APIView):
-    def post(self, request): logout(request); response = Response(
-        {'success': 'Sesión cerrada exitosamente.'}); response.delete_cookie('authtoken'); return response
+    def post(self, request):
+        # Cierra la sesión del usuario y elimina la cookie de autenticación
+        logout(request)
+        response = Response({'success': 'Sesión cerrada exitosamente.'})
+        response.delete_cookie('authtoken')
+        return response
 
 
 class CurrentUserView(APIView):
@@ -77,15 +79,13 @@ class CurrentUserView(APIView):
                 profile_data = profile_serializer.data
             except ObjectDoesNotExist:
                 profile_data = None
-            return Response({'is_authenticated': is_authenticated, 'is_approved': is_approved, 'username': username, 'profile': profile_data, 'email': email, 'is_admin': is_admin, 'first_name': first_name, 'last_name': last_name})
+            return Response({'id': user.id, 'is_authenticated': is_authenticated, 'is_approved': is_approved, 'username': username, 'profile': profile_data, 'email': email, 'is_admin': is_admin, 'first_name': first_name, 'last_name': last_name})
         else:
             is_authenticated = False
             return Response({'detail': 'Usuario no autenticado'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class ProfileView(APIView):
-    permission_classes = [IsAuthenticated]
-
     def get(self, request, username):
         user = get_object_or_404(User, username=username)
         if user.profile.aprobado == 0:
@@ -103,10 +103,9 @@ class ProfileView(APIView):
         if request.user != user:
             return Response('No está autorizado para editar este perfil.', status=status.HTTP_403_FORBIDDEN)
         perfil = user.profile
-        perfil_form = ProfileSerializer(
-            instance=perfil, data=request.data, partial=True)
+        perfil_form = ProfileSerializer(instance=perfil, data=request.data, partial=True)
         if perfil_form.is_valid():
-            if 'photo'not in request.data:
+            if 'photo' not in request.data:
                 perfil_form.validated_data['photo'] = perfil.photo
             else:
                 if perfil.photo and perfil.photo.name != 'default.png':
@@ -115,20 +114,16 @@ class ProfileView(APIView):
                 extension = os.path.splitext(request.data['photo'].name)[1]
                 new_file_path = f"profile_photos/{username}_profile_pic{extension}"
                 file = request.data['photo']
-                perfil_form.validated_data['photo'] = default_storage.save(
-                    new_file_path, file)
+                perfil_form.validated_data['photo'] = default_storage.save(new_file_path, file)
             perfil = perfil_form.save()
-            messages.success(
-                request, 'Se han guardado los cambios en el perfil')
+            messages.success(request, 'Se han guardado los cambios en el perfil')
             serializer = ProfileSerializer(perfil)
             context = serializer.data
             if not perfil.photo:
                 context['default'] = settings.MEDIA_URL+'default.png'
             return Response(context)
         else:
-            print(perfil_form.errors)
             return Response(perfil_form.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class IndexView(APIView):
     def get(self, request):
@@ -153,32 +148,40 @@ class ChangePasswordView(APIView):
             new_password = serializer.validated_data['newPassword']
             user = request.user
             if user.check_password(password_actual):
-                user.set_password(new_password)
-                user.save()
-                messages.success(
-                    request, 'La contraseña ha sido cambiada exitosamente')
-                return Response({'detail': 'Contraseña cambiada exitosamente'}, status=status.HTTP_200_OK)
+                if password_actual == new_password:
+                    return Response({'detail': 'La nueva contraseña debe ser diferente a la contraseña actual'}, status=status.HTTP_400_BAD_REQUEST)
+                elif new_password != serializer.validated_data['confirmNewPassword']:
+                    return Response({'detail': 'La nueva contraseña y su confirmación no coinciden'}, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    user.set_password(new_password)
+                    user.save()
+                    messages.success(
+                        request, 'La contraseña ha sido cambiada exitosamente')
+                    return Response({'detail': 'Contraseña cambiada exitosamente'}, status=status.HTTP_200_OK)
             else:
                 return Response({'detail': 'La contraseña actual es incorrecta'}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ApprovalRequestView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         user = request.user
-        try:
-            solicitud_existente = ApprovalRequest.objects.get(user=user)
-            serializer = ApprovalRequestSerializer(solicitud_existente)
-            message = 'Ya has enviado una solicitud de verificación.'
-            return Response({'message': message, 'data': serializer.data}, status=status.HTTP_200_OK)
-        except ApprovalRequest.DoesNotExist:
-            return Response({'message': 'No se encontró ninguna solicitud de verificación existente.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if user.is_superuser:  # Verificar si el usuario es un superusuario
+            approval_requests = ApprovalRequest.objects.all()
+        else:
+            approval_requests = ApprovalRequest.objects.filter(user=user)
+
+        serializer = ApprovalRequestSerializer(approval_requests, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        user = request.user
         serializer = ApprovalRequestSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(user=user)
+            # Asegúrate de pasar el valor correcto para user_id
+            serializer.save(user_id=request.data['user_id'])
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -186,51 +189,140 @@ class ApprovalRequestView(APIView):
 class AdminPanelView(APIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
 
-    def get(self, request, script=None):
-        query = Q()  # Query vacía
+    def get(self, request):
+        script = request.GET.get('script')
+        query = Q()
         if script == 'players':
-            query = Q(script='players')
-        elif script == 'scrape':
-            query = Q(script='scrape')
-
+            query &= Q(script='players')
+        elif script == 'scraper':
+            query &= Q(script='scraper')
         logs = Log.objects.filter(query)
-        logs_data = {
-            'logs': [
-                {
-                    'date': log.date.strftime('%Y-%m-%d %H:%M:%S'),
-                    'changes_detected': log.changes_detected,
-                    'script': log.script
-                }
-                for log in logs
-            ]
-        }
-
+        logs_data = {'logs': [{'date': log.date.strftime(
+            '%Y-%m-%d %H:%M:%S'), 'changes_detected': log.changes_detected, 'script': script}for log in logs]}
         return Response(logs_data)
-
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from .models import User, ApprovalRequest
 
 
 class UserManagementView(APIView):
     def post(self, request, user_id):
         try:
-            user = User.objects.get(id=user_id)
-            profile = Profile.objects.get(id=user_id)
-            approval_request = ApprovalRequest.objects.get(user=user)
-            profile.is_approved = True
-            approval_request.save()
-            return Response({'message': 'User approved'}, status=status.HTTP_200_OK)
-        except (User.DoesNotExist, ApprovalRequest.DoesNotExist):
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+            approval_request = ApprovalRequest.objects.get(id=user_id)
+            user_id = approval_request.user_id
+
+            profile = Profile.objects.get(user_id=user_id)
+            profile.aprobado = True
+            profile.save()
+
+            approval_request.delete()
+
+            return Response({'message': 'Usuario aprobado y solicitud eliminada'}, status=status.HTTP_200_OK)
+        except (ApprovalRequest.DoesNotExist, Profile.DoesNotExist):
+            return Response({'error': 'Solicitud o perfil no encontrados'}, status=status.HTTP_404_NOT_FOUND)
 
     def delete(self, request, user_id):
         try:
-            approval_request = ApprovalRequest.objects.get(user_id=user_id)
+            approval_request = ApprovalRequest.objects.get(id=user_id)
             approval_request.delete()
-            return Response({'message': 'Request rejected'}, status=status.HTTP_200_OK)
+            return Response({'message': 'Petición rechazada'}, status=status.HTTP_200_OK)
         except ApprovalRequest.DoesNotExist:
-            return Response({'error': 'Request not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Petición no encontrada'}, status=status.HTTP_404_NOT_FOUND)
 
+
+class PlayerSearchView(APIView):
+    def get(self, request):
+        transfers_in_db = Transfer.objects.all()
+        if transfers_in_db.exists():
+            six_weeks_ago = datetime.now() - timedelta(weeks=6)
+            try:
+                last_log_date = Log.objects.filter(
+                    script='scraper').aggregate(Max('date'))['date__max']
+                if last_log_date is not None and last_log_date.date() < six_weeks_ago.date():
+                    return Response({'message': 'La base de datos de jugadores no se ha actualizado en más de 6 semanas. Por favor, contacte con el administrador.'}, status=status.HTTP_404_NOT_FOUND)
+                else:
+                    return Response({'message': 'Hay jugadores en la base de datos y se han actualizado en las últimas 6 semanas.'}, status=status.HTTP_200_OK)
+            except Exception as e:
+                return Response({'message': 'Error al obtener la fecha del último log del script scraper.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({'message': 'No se encontraron jugadores en la base de datos. Por favor, contacte con el administrador.'}, status=status.HTTP_404_NOT_FOUND)
+
+    def post(self, request):
+        nombre_jugador = request.data.get('nombre')
+        if nombre_jugador:
+            nombre_jugador_ascii = unidecode(nombre_jugador)
+            transfers = Transfer.objects.filter(
+                Q(nombre__icontains=nombre_jugador) | Q(
+                    nombre__icontains=nombre_jugador_ascii)
+            )
+            if not transfers:
+                return Response({'message': 'No se encontraron jugadores con ese nombre.'}, status=status.HTTP_404_NOT_FOUND)
+            else:
+                serialized_transfers = list(transfers.values())
+                return Response({'jugadores': serialized_transfers}, status=status.HTTP_200_OK)
+        else:
+            return Response({'message': 'No se encontraron transfers para este jugador.'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class PlayerTransfersView(APIView):
+    def get(self, request, nombre):
+        nombre_jugador = nombre.strip()
+        nombre_jugador_ascii = unidecode(nombre_jugador)
+
+        if nombre_jugador:
+            transfers = Transfer.objects.filter(
+                Q(nombre__icontains=nombre_jugador) |
+                Q(nombre__icontains=nombre_jugador_ascii)
+            )
+        else:
+            transfers = Transfer.objects.all()
+
+        if transfers.exists():
+            serialized_transfers = list(transfers.values())
+            return Response({'transfers': serialized_transfers}, status=status.HTTP_200_OK)
+        else:
+            raise Http404('No se encontraron transfers para este jugador.')
+
+
+class TransferListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        transfer_lists = TransferList.objects.all()
+        data = []
+        for transfer_list in transfer_lists:
+            serialized_data = TransferListSerializer(transfer_list).data
+
+            owner_id = transfer_list.user_id
+            owner_username = User.objects.get(id=owner_id).username
+            serialized_data['username'] = owner_username
+            data.append(serialized_data)
+        return Response(data)
+
+    def post(self, request, id):
+        if id is None:
+            # Crear una nueva lista
+            serializer = TransferListSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save(user_id=request.data['user_id'])
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            # Agregar un transfer a una lista existente
+            try:
+                transfer_list = TransferList.objects.get(id=id)
+                transfer = request.data['transfer']
+                transfer_serializer = TransferSerializer(data=transfer)
+
+                if transfer_serializer.is_valid():
+                    transfer_serializer.save()
+                    transfer_list.transfers.add(transfer_serializer.instance)
+                    serializer = TransferListSerializer(transfer_list)
+                    return Response(serializer.data)
+                return Response(transfer_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            except TransferList.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, id):
+        try:
+            transfer_list = TransferList.objects.get(id=id)
+            transfer_list.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except TransferList.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)

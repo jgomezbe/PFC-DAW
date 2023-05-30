@@ -1,19 +1,19 @@
 import React from "react";
-import Login from "../components/Login";
+import AdminPanel from "../components/AdminPanel";
 
 import CustomNavbar from "../components/CustomNavbar";
 import Footer from "../components/Footer";
 
-const LoginScreen = () => {
+const AdminPanelScreen = () => {
     return (
         <div>
             <CustomNavbar />
             <div className="container min-vh-100">
-                <Login onLogin={() => { }} />
+                <AdminPanel />
             </div>
             <Footer />
         </div>
     );
 };
 
-export default LoginScreen;
+export default AdminPanelScreen;

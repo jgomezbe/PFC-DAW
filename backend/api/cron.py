@@ -1,10 +1,9 @@
-import csv
 import os
 import subprocess
 from datetime import datetime
-import pandas as pd
+from urllib.parse import urlparse
 from django_cron import CronJobBase, Schedule
-from .models import Log, Player
+from .models import Log, Transfer
 
 
 class ScriptCronJob(CronJobBase):
@@ -17,40 +16,53 @@ class ScriptCronJob(CronJobBase):
             os.path.abspath(__file__)), 'scripts', 'players.py')
         script_path_scraper = os.path.join(os.path.dirname(
             os.path.abspath(__file__)), 'scripts', 'scraper.py')
-        """  try:
+
+        try:
+            links_file_path = os.path.join(os.path.dirname(
+                os.path.abspath(__file__)), 'data', 'links.txt')
+            with open(links_file_path, 'r')as links_file:
+                existing_links = [link.strip()
+                                  for link in links_file.readlines()]
             subprocess.run(['python', script_path_players], check=True)
             players_log_file = os.path.join(os.path.dirname(
                 os.path.abspath(__file__)), 'data', 'players_log.txt')
             with open(players_log_file, 'r')as file:
-                current_players_log = file.read()
-            previous_players_log = Log.objects.filter(
-                script='players').order_by('-date').first()
-            if previous_players_log is not None and previous_players_log.changes_detected != current_players_log:
-                changes_detected_players = current_players_log
+                current_players_log = file.readlines()
+                current_players_log = [player_log.strip()
+                                       for player_log in current_players_log]
+            new_players_log = [
+                player_log for player_log in current_players_log if player_log not in existing_links]
+            if new_players_log:
+                changes_detected_players = '\n'.join(
+                    f"Jugador añadido: {urlparse(player_log).path.split('/')[-4].replace('-',' ').title()}"for player_log in new_players_log)
             else:
-                changes_detected_players = 'No se encontraron cambios detectados en players.py'
+                changes_detected_players = 'No se encontraron nuevos jugadores para analizar.'
             log_players = Log(
                 script='players', changes_detected=changes_detected_players, date=datetime.now())
             log_players.save()
+            log_file_path = os.path.join(os.path.dirname(
+                os.path.abspath(__file__)), 'data', 'players_log.txt')
+            if os.path.isfile(log_file_path):
+                os.remove(log_file_path)
         except (subprocess.CalledProcessError, FileNotFoundError)as e:
-            print(f"Error al ejecutar el script players.py: {str(e)}")
-        """
-        try:
+            print(f"Error al ejecutar la actualización: {str(e)}")
 
+        try:
             subprocess.run(['python', script_path_scraper],
-                        check=True, timeout=400000)
+                           check=True, timeout=400000)
             csv_file_path = os.path.join(os.path.dirname(
                 os.path.abspath(__file__)), 'data', 'cantera.csv')
-
             if os.path.isfile(csv_file_path):
                 with open(csv_file_path, 'r', encoding='utf-8') as f:
                     lines = f.readlines()[1:]
+                    transfers = []  # Mover la declaración antes del bucle
+                    print("Initial transfers:", transfers)
+
                     for line in lines:
                         data = line.strip().split(',')
-                        print(data)
-                        jugador = Player(
+                        transfer = Transfer(
                             nombre=data[0],
-                            enlace=data[1],
+                            enlace=data[1].strip(),
                             temporada=data[2],
                             fecha=data[3],
                             ultimo_club=data[4],
@@ -58,19 +70,29 @@ class ScriptCronJob(CronJobBase):
                             valor_mercado=data[6],
                             coste=data[7]
                         )
-                        jugador.save()
+                        existing_transfer = Transfer.objects.filter(
+                            nombre=transfer.nombre, temporada=transfer.temporada, fecha=transfer.fecha, ultimo_club=transfer.ultimo_club,
+                            nuevo_club=transfer.nuevo_club, valor_mercado=transfer.valor_mercado, coste=transfer.coste).first()
+                        if existing_transfer:
+                            continue  # En caso de ya existir en la db saltamos el transfer y no se guarda
+                        transfer.save()
+                        transfers.append(
+                            f"Nuevo traspaso de {transfer.nombre} el {transfer.fecha}")
 
-                os.remove(csv_file_path)
-                log_file_path = os.path.join(os.path.dirname(
-                    os.path.abspath(__file__)), 'data', 'players_log.txt')
-                if os.path.isfile(log_file_path):
-                    os.remove(log_file_path)
-
-                log_players = Log(
-                    script='players', changes_detected='CSV imported', date=datetime.now())
+                if transfers:
+                    log_players = Log(
+                        script='scraper',
+                        changes_detected='Datos actualizados:\n' +
+                        '\n'.join(transfers),
+                        date=datetime.now()
+                    )
+                else:
+                    log_players = Log(
+                        script='scraper',
+                        changes_detected='No se han detectado nuevos traspasos.',
+                        date=datetime.now()
+                    )
                 log_players.save()
-
-            else:
-                print('CSV file not found.')
+                os.remove(csv_file_path)
         except subprocess.CalledProcessError as e:
-            print(f"Error al ejecutar el script scraper.py: {str(e)}") 
+            print(f"Error al ejecutar el script scraper.py: {str(e)}")

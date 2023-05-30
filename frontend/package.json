@@ -13,10 +13,12 @@
     "jquery-ui": "^1.13.2",
     "js-cookie": "^3.0.1",
     "react": "^18.2.0",
+    "react-autosuggest": "^10.1.0",
     "react-bootstrap": "^2.7.2",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.10.0",
     "react-scripts": "^5.0.1",
+    "react-spring": "^9.7.1",
     "reactfire": "^4.2.2",
     "web-vitals": "^2.1.4"
   },

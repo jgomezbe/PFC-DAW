@@ -1,0 +1,33 @@
+.trophy-container {
+  position: relative;
+  width: 200px; /* Ajusta el ancho según sea necesario */
+  height: 200px; /* Ajusta la altura según sea necesario */
+}
+
+.trophy {
+  position: relative;
+  width: auto;
+  height: 100%;
+}
+
+.fill-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  width: 0%;
+  background-color: #005ea4;
+}
+
+.trophy-image {
+  position: relative;
+  width: 100%;
+  height: auto;
+  z-index: 1;
+}

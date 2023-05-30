@@ -1,19 +1,18 @@
 import React from "react";
-import Login from "../components/Login";
-
+import Registro from "../components/Register";
 import CustomNavbar from "../components/CustomNavbar";
 import Footer from "../components/Footer";
 
-const LoginScreen = () => {
+const RegisterScreen = () => {
     return (
         <div>
             <CustomNavbar />
             <div className="container min-vh-100">
-                <Login onLogin={() => { }} />
+                <Registro />
             </div>
             <Footer />
         </div>
     );
 };
 
-export default LoginScreen;
+export default RegisterScreen;

@@ -1,19 +1,18 @@
 import React from "react";
-import Login from "../components/Login";
-
+import TransferList from "../components/TransferList";
 import CustomNavbar from "../components/CustomNavbar";
 import Footer from "../components/Footer";
 
-const LoginScreen = () => {
+const TransferListScreen = () => {
     return (
         <div>
             <CustomNavbar />
-            <div className="container min-vh-100">
-                <Login onLogin={() => { }} />
+            <div className="container min-vh-110">
+                <TransferList />
             </div>
             <Footer />
         </div>
     );
 };
 
-export default LoginScreen;
+export default TransferListScreen;

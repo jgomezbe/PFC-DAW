@@ -1,19 +1,18 @@
 import React from "react";
-import Login from "../components/Login";
-
+import PlayerSearch from "../components/PlayerSearch";
 import CustomNavbar from "../components/CustomNavbar";
 import Footer from "../components/Footer";
 
-const LoginScreen = () => {
+const PlayerSearchScreen = () => {
     return (
         <div>
             <CustomNavbar />
-            <div className="container min-vh-100">
-                <Login onLogin={() => { }} />
+            <div className="container min-vh-110">
+                <PlayerSearch />
             </div>
             <Footer />
         </div>
     );
 };
 
-export default LoginScreen;
+export default PlayerSearchScreen;
