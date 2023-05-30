@@ -26,17 +26,17 @@ Los derechos de formación son una indemnización que se debe pagar a los clubes
 ## Características de la aplicación y demostración
 A continuación se muestran brevemente algunos gifs a modo de ejemplo de los rasgos a resaltar de la app:
 - Autenticación de usuarios: Permite a los usuarios registrarse, iniciar sesión y gestionar sus perfiles individuales.
-![Interacción del perfil del user](readmesrc\perfil.gif)
+![Interacción del perfil del user](/readmesrc\perfil.gif)
 - Gestión de usuarios: Permite a los administradores gestionar las solicitudes de verificación de los clubes formadores y aprobar o rechazar dichas solicitudes.
-![Aprobación de una solicitud](readmesrc\aprobar.gif)
+![Aprobación de una solicitud](/readmesrc\aprobar.gif)
 - Importación de jugadores y traspasos: La aplicación ejecuta un script de scrapeo que obtiene los datos de la página besoccer.com para importar información sobre jugadores y sus traspasos recientes. Esto es especialmente útil para jugadores que han pasado por categorías inferiores o el primer equipo del RC Deportivo de la Coruña.
-![Menú del panel de administrador donde están los logs](readmesrc\logs.gif)
+![Menú del panel de administrador donde están los logs](/readmesrc\logs.gif)
 - Consulta de jugadores: Los usuarios pueden realizar búsquedas de jugadores y obtener una lista de resultados, con la posibilidad de acceder a los perfiles de los jugadores en la página web de TransferMarkt, una fuente de información futbolística reconocida.
-![Búsqueda de un jugador y navegación por sus transfers](readmesrc\buscar.gif)
+![Búsqueda de un jugador y navegación por sus transfers](/readmesrc\buscar.gif)
 - Elementos genéricos: La aplicación incluye elementos como una barra de navegación y un pie de página con enlaces complementarios a la propia app, así como enlaces a diferentes endpoints de la misma.
-![Navbar y Footer en acción](readmesrc\menus.gif)
+![Navbar y Footer en acción](/readmesrc\menus.gif)
 - Elementos estéticos: Se han incorporado elementos visuales como una galería de imágenes, un mensaje de bienvenida al usuario (dependiendo de si está autenticado o no) y un contador de los días transcurridos desde la fundación del RC Deportivo.
-![Menú principal de la app](readmesrc\index.gif)
+![Menú principal de la app](/readmesrc\index.gif)
 ## Acceso al proyecto
 ### Comandos de ejecución local
 
