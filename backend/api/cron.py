@@ -17,7 +17,7 @@ class ScriptCronJob(CronJobBase):
         script_path_scraper = os.path.join(os.path.dirname(
             os.path.abspath(__file__)), 'scripts', 'scraper.py')
 
-        """ try:
+        try:
             links_file_path = os.path.join(os.path.dirname(
                 os.path.abspath(__file__)), 'data', 'links.txt')
             with open(links_file_path, 'r')as links_file:
@@ -46,7 +46,6 @@ class ScriptCronJob(CronJobBase):
                 os.remove(log_file_path)
         except (subprocess.CalledProcessError, FileNotFoundError)as e:
             print(f"Error al ejecutar la actualización: {str(e)}")
- """
 
         try:
             subprocess.run(['python', script_path_scraper],

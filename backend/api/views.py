@@ -323,7 +323,6 @@ class TransferListView(APIView):
             try:
                 transfer_list = TransferList.objects.get(id=id)
                 # Suponiendo que tienes un campo 'transfer_id' en los datos de la solicitud
-                print(request.data)
                 transfer_id = request.data.get('transfer').get('id')
 
                 try:

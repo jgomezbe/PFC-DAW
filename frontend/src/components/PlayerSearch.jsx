@@ -94,7 +94,7 @@ const PlayerSearch = () => {
       }
     } catch (error) {
       setErrorMessage(error.response.data)
-      console.log(errorMessage);
+      console.log(error);
     }
   };
 
@@ -188,7 +188,6 @@ const PlayerSearch = () => {
           }
 
         );
-        console.log(newTransfer);
         const updatedTransferLists = transferLists.map((list) =>
           list.id === selectedList.id ? response.data : list
         );

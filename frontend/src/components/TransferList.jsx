@@ -42,7 +42,6 @@ const TransferList = () => {
           },
           withCredentials: true,
         });
-        console.log(response.data);
 
         const filteredLists = response.data.filter((list) => {
           return currentUser && currentUser.is_admin ? true : list.user_id === (currentUser && currentUser.id);
@@ -88,7 +87,6 @@ const TransferList = () => {
         },
         withCredentials: true,
       });
-      console.log(response);
       setDeleteResult(response.data.message);
       const updatedLists = transferLists.filter((list) => list.id !== listId);
       setTransferLists(updatedLists);
