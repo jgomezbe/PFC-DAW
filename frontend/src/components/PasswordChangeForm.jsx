@@ -63,7 +63,7 @@ const PasswordChangeForm = () => {
   return (
     <div className="card container">
       <div className="card-header">
-        <h4>Cambiar Contraseña</h4>
+        <h2 className="text-center">Cambiar contraseña</h2>
       </div>
       <div className="card-body">
         <form onSubmit={handleSubmit}>

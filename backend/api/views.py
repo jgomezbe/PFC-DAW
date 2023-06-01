@@ -86,6 +86,8 @@ class CurrentUserView(APIView):
 
 
 class ProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request, username):
         user = get_object_or_404(User, username=username)
         if user.profile.aprobado == 0:
@@ -103,9 +105,10 @@ class ProfileView(APIView):
         if request.user != user:
             return Response('No está autorizado para editar este perfil.', status=status.HTTP_403_FORBIDDEN)
         perfil = user.profile
-        perfil_form = ProfileSerializer(instance=perfil, data=request.data, partial=True)
+        perfil_form = ProfileSerializer(
+            instance=perfil, data=request.data, partial=True)
         if perfil_form.is_valid():
-            if 'photo' not in request.data:
+            if 'photo'not in request.data:
                 perfil_form.validated_data['photo'] = perfil.photo
             else:
                 if perfil.photo and perfil.photo.name != 'default.png':
@@ -114,9 +117,11 @@ class ProfileView(APIView):
                 extension = os.path.splitext(request.data['photo'].name)[1]
                 new_file_path = f"profile_photos/{username}_profile_pic{extension}"
                 file = request.data['photo']
-                perfil_form.validated_data['photo'] = default_storage.save(new_file_path, file)
+                perfil_form.validated_data['photo'] = default_storage.save(
+                    new_file_path, file)
             perfil = perfil_form.save()
-            messages.success(request, 'Se han guardado los cambios en el perfil')
+            messages.success(
+                request, 'Se han guardado los cambios en el perfil')
             serializer = ProfileSerializer(perfil)
             context = serializer.data
             if not perfil.photo:
@@ -124,6 +129,7 @@ class ProfileView(APIView):
             return Response(context)
         else:
             return Response(perfil_form.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class IndexView(APIView):
     def get(self, request):
@@ -244,39 +250,49 @@ class PlayerSearchView(APIView):
         return Response({'message': 'No se encontraron jugadores en la base de datos. Por favor, contacte con el administrador.'}, status=status.HTTP_404_NOT_FOUND)
 
     def post(self, request):
+        # Obtiene el nombre del jugador del cuerpo de la solicitud
         nombre_jugador = request.data.get('nombre')
         if nombre_jugador:
+            # Convierte el nombre del jugador a ASCII
             nombre_jugador_ascii = unidecode(nombre_jugador)
+            # Filtra las transferencias por coincidencia en el nombre o en el nombre ASCII
             transfers = Transfer.objects.filter(
-                Q(nombre__icontains=nombre_jugador) | Q(
-                    nombre__icontains=nombre_jugador_ascii)
-            )
-            if not transfers:
+                Q(nombre__icontains=nombre_jugador) | Q(nombre__icontains=nombre_jugador_ascii))
+            if not transfers:  # Comprueba si no hay transferencias que coincidan
+                # Devuelve un mensaje indicando que no se encontraron jugadores con ese nombre
                 return Response({'message': 'No se encontraron jugadores con ese nombre.'}, status=status.HTTP_404_NOT_FOUND)
             else:
+                # Serializa las transferencias encontradas
                 serialized_transfers = list(transfers.values())
+                # Devuelve las transferencias serializadas en la respuesta
                 return Response({'jugadores': serialized_transfers}, status=status.HTTP_200_OK)
         else:
-            return Response({'message': 'No se encontraron transfers para este jugador.'}, status=status.HTTP_404_NOT_FOUND)
+            # Devuelve un mensaje indicando que no se teclearon jugadores
+            return Response({'message': 'No se ha tecleado ningún nombre, por favor inserte un nombre.'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class PlayerTransfersView(APIView):
     def get(self, request, nombre):
+        # Elimina los espacios en blanco alrededor del nombre del jugador
         nombre_jugador = nombre.strip()
+        # Convierte el nombre del jugador a ASCII
         nombre_jugador_ascii = unidecode(nombre_jugador)
 
         if nombre_jugador:
             transfers = Transfer.objects.filter(
                 Q(nombre__icontains=nombre_jugador) |
                 Q(nombre__icontains=nombre_jugador_ascii)
-            )
+            )  # Filtra las transferencias por coincidencia en el nombre o en el nombre ASCII
         else:
-            transfers = Transfer.objects.all()
+            transfers = Transfer.objects.all()  # Obtiene todas las transferencias
 
         if transfers.exists():
+            # Serializa las transferencias encontradas
             serialized_transfers = list(transfers.values())
+            # Devuelve las transferencias serializadas en la respuesta
             return Response({'transfers': serialized_transfers}, status=status.HTTP_200_OK)
         else:
+            # Lanza una excepción Http404 si no se encontraron transferencias para este jugador
             raise Http404('No se encontraron transfers para este jugador.')
 
 
@@ -288,15 +304,14 @@ class TransferListView(APIView):
         data = []
         for transfer_list in transfer_lists:
             serialized_data = TransferListSerializer(transfer_list).data
-
             owner_id = transfer_list.user_id
             owner_username = User.objects.get(id=owner_id).username
             serialized_data['username'] = owner_username
             data.append(serialized_data)
         return Response(data)
 
-    def post(self, request, id):
-        if id is None:
+    def post(self, request, id=None):
+        if not id:
             # Crear una nueva lista
             serializer = TransferListSerializer(data=request.data)
             if serializer.is_valid():
@@ -307,15 +322,18 @@ class TransferListView(APIView):
             # Agregar un transfer a una lista existente
             try:
                 transfer_list = TransferList.objects.get(id=id)
-                transfer = request.data['transfer']
-                transfer_serializer = TransferSerializer(data=transfer)
+                # Suponiendo que tienes un campo 'transfer_id' en los datos de la solicitud
+                print(request.data)
+                transfer_id = request.data.get('transfer').get('id')
 
-                if transfer_serializer.is_valid():
-                    transfer_serializer.save()
-                    transfer_list.transfers.add(transfer_serializer.instance)
+                try:
+                    transfer = Transfer.objects.get(id=transfer_id)
+                    transfer_list.transfers.add(transfer)
                     serializer = TransferListSerializer(transfer_list)
                     return Response(serializer.data)
-                return Response(transfer_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                except Transfer.DoesNotExist:
+                    return Response({"error": "El objeto de transferencia no existe."}, status=status.HTTP_400_BAD_REQUEST)
+
             except TransferList.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
 

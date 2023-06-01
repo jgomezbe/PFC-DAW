@@ -12,15 +12,12 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 function Index() {
     return (
         <div>
-            <div>
-                <CustomNavbar />
-                <div className="container">
-                    <WelcomeMessage />
-                    <Gallery />
-
-                </div>
-                <Footer />
+            <CustomNavbar />
+            <div className="container min-vh-100">
+                <WelcomeMessage />
+                <Gallery />
             </div>
+            <Footer />
         </div>
     );
 }

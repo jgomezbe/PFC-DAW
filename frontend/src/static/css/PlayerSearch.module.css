@@ -5,10 +5,10 @@
     margin-top: 2rem
 }
 
-.container h1 {
-    text-align: center
+.container {
+    text-align: center;
+    color:#0069d9
 }
-
 form {
     display: flex;
     flex-direction: column;

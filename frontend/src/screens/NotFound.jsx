@@ -7,22 +7,20 @@ const NotFound = () => {
     return (
         <div>
             <CustomNavbar />
-            <div className="container">
-
+            <div className="container min-vh-100">
                 <div className="text-center mt-5">
-                    <p className="lead">Página no encontrada</p>
                     <p>La página que estás buscando no existe.</p>
-                    <Button variant="primary">
+                    <button className="btn btn-primary">
                         <Link className="text-white" to="/">
                             Volver a la página de inicio
                         </Link>
-                    </Button>
+                    </button>
                 </div>
             </div>
             <Footer />
-
         </div>
     );
+
 };
 
 export default NotFound;

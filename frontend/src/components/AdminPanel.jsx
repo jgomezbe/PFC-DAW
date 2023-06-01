@@ -6,12 +6,12 @@ import { Table, Button } from "react-bootstrap";
 
 const AdminPanel = () => {
   // Estados del componente
-  const [playersLog, setPlayersLog] = useState([]);
-  const [scrapeLog, setScrapeLog] = useState([]);
-  const [selectedLog, setSelectedLog] = useState(null);
-  const [expandedLogs, setExpandedLogs] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const logsPerPage = 20;
+  const [playersLog, setPlayersLog] = useState([]); // Estado para almacenar los logs de jugadores
+  const [scrapeLog, setScrapeLog] = useState([]); // Estado para almacenar los logs de traspasos
+  const [selectedLog, setSelectedLog] = useState(null); // Estado para almacenar el log seleccionado
+  const [expandedLogs, setExpandedLogs] = useState([]); // Estado para almacenar los logs expandidos
+  const [currentPage, setCurrentPage] = useState(1); // Estado para almacenar la página actual de los logs
+  const logsPerPage = 20; // Cantidad de logs por página
 
   // Maneja la acción de ver un log específico
   const handleViewLog = async (script) => {
@@ -261,28 +261,22 @@ const AdminPanel = () => {
   return (
     <div>
       <div className="admin-panel text-center">
-        <h1>Panel de administración</h1>
+        <h2>Panel de administración</h2>
+
         <div className="admin-panel-actions">
           <Button
             variant={selectedLog === "players" ? "primary" : "outline-primary"}
             onClick={() => handleViewLog("players")}
           >
-            {selectedLog === "players"
-              ? "Ocultar log de jugadores"
-              : "Ver log de jugadores"}
+            {selectedLog === "players" ? "Ocultar log de jugadores" : "Ver log de jugadores"}
           </Button>
           <Button
             variant={selectedLog === "scraper" ? "primary" : "outline-primary"}
             onClick={() => handleViewLog("scraper")}
           >
-            {selectedLog === "scraper"
-              ? "Ocultar log de traspasos"
-              : "Ver log de traspasos"}
+            {selectedLog === "scraper" ? "Ocultar log de traspasos" : "Ver log de traspasos"}
           </Button>
-          <Button
-            variant={"outline-primary"}
-            className="mx-2 my-2 animate__animated animate__fadeIn primary"
-          >
+          <Button variant="outline-primary" className="mx-2 my-2 animate__animated animate__fadeIn primary">
             <Link className="nav-link" to="/gestion-usuarios/">
               Aprobación de usuarios
             </Link>
@@ -292,6 +286,7 @@ const AdminPanel = () => {
       </div>
     </div>
   );
+
 };
 
 export default AdminPanel;

@@ -17,8 +17,6 @@ function ApprovalRequestForm({ onSubmit, userId }) {
 
     // Llama a la función onSubmit pasando el objeto FormData como argumento
     onSubmit(formData);
-
-    console.log(nombre, apellidos, mensaje);
   };
 
   return (

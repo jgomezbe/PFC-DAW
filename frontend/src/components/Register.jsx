@@ -57,7 +57,7 @@ const Register = () => {
 
   return (
     <div className="form-container">
-      <h2>Registro de usuario.</h2>
+      <h2 className="text-center">Registro de usuario</h2>
       <form onSubmit={handleSubmit}>
         {/* Input para el nombre */}
         <div className="form-input-container">

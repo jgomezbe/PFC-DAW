@@ -24,6 +24,7 @@ urlpatterns = [
     path("player-transfers/<str:nombre>/",
          views.PlayerTransfersView.as_view(), name="player-transfers"),
     path('transfer-lists/', views.TransferListView.as_view(), name='transfer-lists'),
+    path('transfer-lists/<int:id>/', views.TransferListView.as_view(), name='transfer-lists-delete'),
     path('transfer-lists/<int:id>/add-transfer/', views.TransferListView.as_view(), name='transfer-list-add-transfer'),
     path("current-user/", views.CurrentUserView.as_view(), name="current-user"),
 ]

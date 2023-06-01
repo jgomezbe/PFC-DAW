@@ -7,7 +7,7 @@ const TransferListScreen = () => {
     return (
         <div>
             <CustomNavbar />
-            <div className="container min-vh-110">
+            <div className="container min-vh-100">
                 <TransferList />
             </div>
             <Footer />

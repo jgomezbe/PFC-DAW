@@ -11,7 +11,7 @@ const Players = () => {
             <div className="container">
                 <div className="card mb-3 mt-2">
                     <div className="card-body text-center">
-                        <div className="container min-vh-110">
+                        <div className="container min-vh-100">
                             {/* Botón para buscar jugadores */}
                             <Button
                                 variant="primary"

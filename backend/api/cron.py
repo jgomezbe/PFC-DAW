@@ -17,7 +17,7 @@ class ScriptCronJob(CronJobBase):
         script_path_scraper = os.path.join(os.path.dirname(
             os.path.abspath(__file__)), 'scripts', 'scraper.py')
 
-        try:
+        """ try:
             links_file_path = os.path.join(os.path.dirname(
                 os.path.abspath(__file__)), 'data', 'links.txt')
             with open(links_file_path, 'r')as links_file:
@@ -46,6 +46,7 @@ class ScriptCronJob(CronJobBase):
                 os.remove(log_file_path)
         except (subprocess.CalledProcessError, FileNotFoundError)as e:
             print(f"Error al ejecutar la actualización: {str(e)}")
+ """
 
         try:
             subprocess.run(['python', script_path_scraper],
@@ -55,9 +56,7 @@ class ScriptCronJob(CronJobBase):
             if os.path.isfile(csv_file_path):
                 with open(csv_file_path, 'r', encoding='utf-8') as f:
                     lines = f.readlines()[1:]
-                    transfers = []  # Mover la declaración antes del bucle
-                    print("Initial transfers:", transfers)
-
+                    transfers = []
                     for line in lines:
                         data = line.strip().split(',')
                         transfer = Transfer(
@@ -78,21 +77,15 @@ class ScriptCronJob(CronJobBase):
                         transfer.save()
                         transfers.append(
                             f"Nuevo traspaso de {transfer.nombre} el {transfer.fecha}")
-
-                if transfers:
-                    log_players = Log(
-                        script='scraper',
-                        changes_detected='Datos actualizados:\n' +
-                        '\n'.join(transfers),
-                        date=datetime.now()
-                    )
-                else:
-                    log_players = Log(
-                        script='scraper',
-                        changes_detected='No se han detectado nuevos traspasos.',
-                        date=datetime.now()
-                    )
-                log_players.save()
                 os.remove(csv_file_path)
+                log_players = Log(
+                    script='scraper',
+                    changes_detected='Datos actualizados:\n' +
+                    '\n'.join(transfers),
+                    date=datetime.now()
+                )
+                log_players.save()
+            else:
+                print('CSV file not found.')
         except subprocess.CalledProcessError as e:
             print(f"Error al ejecutar el script scraper.py: {str(e)}")

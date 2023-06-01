@@ -3,7 +3,6 @@ import axios from "axios";
 import { API_URL } from "../config";
 import Cookies from "js-cookie";
 import { Modal } from "react-bootstrap";
-
 const PlayerSearch = () => {
   // Estado para almacenar la lista de jugadores
   const [jugadores, setJugadores] = useState([]);
@@ -27,12 +26,12 @@ const PlayerSearch = () => {
   const [listName, setListName] = useState("");
   // Estado para controlar la visibilidad del formulario de creación de lista
   const [showCreateList, setShowCreateList] = useState(false);
-  // Estado para mostrar un mensaje de éxito en caso de que se haya añadido un traspaso a una lista
-
+  // Estado para mostrar un mensaje de éxito en caso de que no haya errores
   const [successMessage, setSuccessMessage] = useState('');
-  // Estado para mostrar un mensaje de error en caso de que no se pueda añadir un traspaso a una lista
-
+  // Estado para mostrar un mensaje de error en caso de que haya errores
   const [errorMessage, setErrorMessage] = useState('');
+  // Estado para mostrar un mensaje de aviso si el transfer ya está en la lista de traspasos
+  const [warningMessage, setWarningMessage] = useState('');
 
   // useEffect para cargar los datos iniciales
   useEffect(() => {
@@ -94,7 +93,8 @@ const PlayerSearch = () => {
         setResultados(data.jugadores);
       }
     } catch (error) {
-      console.log(error);
+      setErrorMessage(error.response.data)
+      console.log(errorMessage);
     }
   };
 
@@ -153,11 +153,12 @@ const PlayerSearch = () => {
   const handleAddToTransferList = async () => {
     if (selectedList && selectedPlayer && playerTransfers.length > 0) {
       const selectedTransfer = playerTransfers[currentTransferIndex];
+
       const isTransferInList = selectedList.transfers.some(
         (transfer) => transfer.id === selectedTransfer.id
       );
       if (isTransferInList) {
-        console.log("El traspaso ya está en la lista de traspasos.");
+        setWarningMessage('El traspaso ya está en la lista de traspasos.');
         return;
       }
 
@@ -174,7 +175,6 @@ const PlayerSearch = () => {
           nuevo_club: selectedTransfer.nuevo_club,
         },
       };
-      console.log(newTransfer)
       try {
         const response = await axios.post(
           `${API_URL}/transfer-lists/${selectedList.id}/add-transfer/`,
@@ -186,15 +186,15 @@ const PlayerSearch = () => {
             },
             withCredentials: true,
           }
-        );
 
+        );
+        console.log(newTransfer);
         const updatedTransferLists = transferLists.map((list) =>
           list.id === selectedList.id ? response.data : list
         );
         setTransferLists(updatedTransferLists);
         setSelectedList(response.data);
         setSuccessMessage('El jugador ha sido añadido a la lista de traspasos con éxito.');
-        console.log(response);
       } catch (error) {
         setErrorMessage('Ha ocurrido un error al añadir el jugador a la lista de traspasos. Por favor, inténtalo de nuevo.');
       }
@@ -261,8 +261,17 @@ const PlayerSearch = () => {
   return (
     <div>
       <div className="container mt-4">
-        <h1 className="text-center mb-4">Buscar jugador</h1>
-
+        <h2 className="text-center">Búsqueda de jugadores</h2>
+        {successMessage && (
+          <div className="alert alert-success" role="alert">
+            {successMessage.message}
+          </div>
+        )}
+        {errorMessage && (
+          <div className="alert alert-danger" role="alert">
+            {errorMessage.message}
+          </div>
+        )}
         <div className="row justify-content-center">
           <div className="col-lg-6 col-md-8 col-sm-10">
             <form onSubmit={handleSubmit} className="d-flex">
@@ -281,7 +290,7 @@ const PlayerSearch = () => {
 
             {/* Mostrar los jugadores agrupados */}
             {jugadoresAgrupados.length > 0 && (
-              <div className="mt-4">
+              <div className="mt-4 min-vh-100">
                 {jugadoresAgrupados.map((jugador) => (
                   <div key={jugador.id}>
                     <div
@@ -306,7 +315,7 @@ const PlayerSearch = () => {
       {/* Modal para mostrar los traspasos de un jugador */}
       <Modal show={selectedPlayer !== null} onHide={closeModal} centered size="lg">
         <Modal.Header closeButton>
-        <Modal.Title>Traspasos de {selectedPlayer && selectedPlayer.nombre}</Modal.Title>
+          <Modal.Title>Traspasos de {selectedPlayer && selectedPlayer.nombre}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {playerTransfers.length > 0 ? (
@@ -379,14 +388,19 @@ const PlayerSearch = () => {
                 <button
                   className="btn btn-primary"
                   onClick={handleAddToTransferList}
-                  disabled={selectedList.transfers.find((transfer) => transfer.id === selectedPlayer.id)}
                 >
                   Añadir a la lista de traspasos
                 </button>
               )}
             </>
           )}
+          {warningMessage && (
+            <div className="alert alert-warning" role="alert">
+              {warningMessage}
+            </div>
+          )}
         </Modal.Footer>
+
       </Modal>
 
       {/* Modal para crear una nueva lista de traspasos */}
