@@ -77,6 +77,7 @@ class CurrentUserView(APIView):
                 is_approved = profile.aprobado
                 profile_serializer = ProfileSerializer(profile)
                 profile_data = profile_serializer.data
+                print(profile_data)
             except ObjectDoesNotExist:
                 profile_data = None
             return Response({'id': user.id, 'is_authenticated': is_authenticated, 'is_approved': is_approved, 'username': username, 'profile': profile_data, 'email': email, 'is_admin': is_admin, 'first_name': first_name, 'last_name': last_name})

@@ -1,8 +1,6 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import NotFound from './screens/NotFound'; // Importa el componente NotFound
-import "normalize.css/normalize.css";
-
 import RegisterScreen from './screens/RegisterScreen';
 import Profile from './screens/Profile';
 import PasswordChange from './screens/PasswordChange';

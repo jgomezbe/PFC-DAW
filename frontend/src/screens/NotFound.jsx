@@ -1,6 +1,5 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Button } from "react-bootstrap";
 import Footer from "../components/Footer";
 import CustomNavbar from "../components/CustomNavbar";
 const NotFound = () => {
