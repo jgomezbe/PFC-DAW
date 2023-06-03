@@ -29,7 +29,7 @@ A continuación se muestran brevemente algunos gifs a modo de ejemplo de los ras
 ![Interacción del perfil del user](https://github.com/jgomezbe/PFC-DAW/blob/main/readmesrc/perfil.gif)
 - Gestión de usuarios: Permite a los administradores gestionar las solicitudes de verificación de los clubes formadores y aprobar o rechazar dichas solicitudes.
 ![Aprobación de una solicitud](https://github.com/jgomezbe/PFC-DAW/blob/main/readmesrc/gestion.gif)
-- Importación de jugadores y traspasos: La aplicación ejecuta un script de scrapeo que obtiene los datos de la página besoccer.com para importar información sobre jugadores y sus traspasos recientes. Esto es especialmente útil para jugadores que han pasado por categorías inferiores o el primer equipo del RC Deportivo de la Coruña.
+- Importación de jugadores y traspasos: La aplicación ejecuta un script de scrapeo que obtiene los datos de la página transfermarkt.com para importar información sobre jugadores y sus traspasos recientes. Esto es especialmente útil para jugadores que han pasado por categorías inferiores o el primer equipo del RC Deportivo de la Coruña.
 ![Menú del panel de administrador donde están los logs](https://github.com/jgomezbe/PFC-DAW/blob/main/readmesrc/logs.gif)
 - Consulta de jugadores: Los usuarios pueden realizar búsquedas de jugadores y obtener una lista de resultados, con la posibilidad de acceder a los perfiles de los jugadores en la página web de TransferMarkt, una fuente de información futbolística reconocida.
 ![Búsqueda de un jugador y navegación por sus transfers](https://github.com/jgomezbe/PFC-DAW/blob/main/readmesrc/buscar.gif)
