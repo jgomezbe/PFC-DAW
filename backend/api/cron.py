@@ -85,6 +85,6 @@ class ScriptCronJob(CronJobBase):
                 )
                 log_players.save()
             else:
-                print('CSV file not found.')
+                print('CSV no encontrado.')
         except subprocess.CalledProcessError as e:
             print(f"Error al ejecutar el script scraper.py: {str(e)}")

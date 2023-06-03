@@ -32,6 +32,8 @@ const PlayerSearch = () => {
   const [errorMessage, setErrorMessage] = useState('');
   // Estado para mostrar un mensaje de aviso si el transfer ya está en la lista de traspasos
   const [warningMessage, setWarningMessage] = useState('');
+    // Estado para mostrar un mensaje de aviso si el transfer ya está en la lista de traspasos
+  const [modalSuccessMessage, setModalSuccessMessage] = useState('');
 
   // useEffect para cargar los datos iniciales
   useEffect(() => {
@@ -191,11 +193,12 @@ const PlayerSearch = () => {
         const updatedTransferLists = transferLists.map((list) =>
           list.id === selectedList.id ? response.data : list
         );
+        console.log(response);
         setTransferLists(updatedTransferLists);
         setSelectedList(response.data);
-        setSuccessMessage('El jugador ha sido añadido a la lista de traspasos con éxito.');
+        setModalSuccessMessage(response.data.message);
       } catch (error) {
-        setErrorMessage('Ha ocurrido un error al añadir el jugador a la lista de traspasos. Por favor, inténtalo de nuevo.');
+        setWarningMessage(error);
       }
     }
   };
@@ -263,12 +266,12 @@ const PlayerSearch = () => {
         <h2 className="text-center">Búsqueda de jugadores</h2>
         {successMessage && (
           <div className="alert alert-success" role="alert">
-            {successMessage.message}
+            {successMessage}
           </div>
         )}
         {errorMessage && (
           <div className="alert alert-danger" role="alert">
-            {errorMessage.message}
+            {errorMessage}
           </div>
         )}
         <div className="row justify-content-center">
@@ -311,12 +314,16 @@ const PlayerSearch = () => {
         </div>
       </div>
 
-      {/* Modal para mostrar los traspasos de un jugador */}
       <Modal show={selectedPlayer !== null} onHide={closeModal} centered size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Traspasos de {selectedPlayer && selectedPlayer.nombre}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          {modalSuccessMessage && (
+            <div className="alert alert-success" role="alert">
+              {modalSuccessMessage}
+            </div>
+          )}
           {playerTransfers.length > 0 ? (
             <>
               <div className="d-flex justify-content-between">
@@ -398,10 +405,13 @@ const PlayerSearch = () => {
               {warningMessage}
             </div>
           )}
+          {errorMessage && (
+            <div className="alert alert-danger" role="alert">
+              {errorMessage}
+            </div>
+          )}
         </Modal.Footer>
-
       </Modal>
-
       {/* Modal para crear una nueva lista de traspasos */}
       <Modal show={showCreateList} onHide={() => setShowCreateList(false)} centered>
         <Modal.Header closeButton>

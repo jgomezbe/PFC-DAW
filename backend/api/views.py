@@ -1,4 +1,3 @@
-from .serializers import TransferListSerializer, TransferSerializer
 from django.db.models import Max, Q
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.utils.timezone import timedelta
@@ -77,7 +76,6 @@ class CurrentUserView(APIView):
                 is_approved = profile.aprobado
                 profile_serializer = ProfileSerializer(profile)
                 profile_data = profile_serializer.data
-                print(profile_data)
             except ObjectDoesNotExist:
                 profile_data = None
             return Response({'id': user.id, 'is_authenticated': is_authenticated, 'is_approved': is_approved, 'username': username, 'profile': profile_data, 'email': email, 'is_admin': is_admin, 'first_name': first_name, 'last_name': last_name})
@@ -317,7 +315,7 @@ class TransferListView(APIView):
             serializer = TransferListSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save(user_id=request.data['user_id'])
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                return Response({"message": "Lista creada con éxito."}, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             # Agregar un transfer a una lista existente
@@ -330,7 +328,7 @@ class TransferListView(APIView):
                     transfer = Transfer.objects.get(id=transfer_id)
                     transfer_list.transfers.add(transfer)
                     serializer = TransferListSerializer(transfer_list)
-                    return Response(serializer.data)
+                    return Response({"message": "Transfer agregado con éxito a la lista."}, status=status.HTTP_200_OK)
                 except Transfer.DoesNotExist:
                     return Response({"error": "El objeto de transferencia no existe."}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -341,6 +339,6 @@ class TransferListView(APIView):
         try:
             transfer_list = TransferList.objects.get(id=id)
             transfer_list.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response({"message": "Lista eliminada con éxito."}, status=status.HTTP_204_NO_CONTENT)
         except TransferList.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
