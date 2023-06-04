@@ -43,50 +43,85 @@ A continuación se muestran brevemente algunos gifs a modo de ejemplo de los ras
 Para ejecutar el proyecto en un entorno local, sigue estos pasos:
 
 1. Clona el repositorio:
-    https://github.com/jgomezbe/PFC-DAW.git
+    ```
+    git clone https://github.com/jgomezbe/PFC-DAW.git
+    ```
 
 2. Navega al directorio del proyecto:
 
+    ```
     cd PFC-DAW
+    ```
 
 3. Instala las dependencias del frontend:
 
+    ```
     cd frontend
-
     npm install
-
     npm install @fortawesome/fontawesome-free @csstools/normalize.css
-    
+    ```
+
 4. Inicia el servidor de desarrollo del frontend:
 
+    ```
     npm start
+    ```
 
 5. Abre otra terminal y navega al directorio del backend:
 
+    ```
     cd ../backend
+    ```
 
 6. Crea y activa un entorno virtual (opcional):
 
+    ```
     python -m venv env
-
     source env/bin/activate
+    ```
 
 7. Instala las dependencias del backend:
 
+    ```
     pip install -r requirements.txt
+    ```
 
-8. Ejecuta las migraciones de la base de datos:
+8. Verifica si tienes instalado MySQL y crea una base de datos:
 
+    - Si tienes instalado MySQL y ya tienes una base de datos creada, salta al paso 9.
+    - Si no tienes MySQL instalado, sigue los pasos de instalación adecuados para tu sistema operativo.
+    - Una vez instalado MySQL, abre una terminal y ejecuta los siguientes comandos:
+
+        ```
+        mysql -u root -p
+        ```
+
+        Se te pedirá ingresar tu contraseña de MySQL. En este caso, utiliza la contraseña '1234' (como se especifica en la configuración del backend Django).
+
+        ```
+        CREATE DATABASE pfc;
+        ```
+
+        Esto creará una base de datos llamada 'pfc'.1
+
+9. Ejecuta las migraciones de la base de datos:
+
+    ```
     python manage.py migrate
+    ```
 
-9. Inicia el servidor de desarrollo del backend:
+10. Inicia el servidor de desarrollo del backend:
 
+    ```
     python manage.py runserver
+    ```
 
-10. Accede a la aplicación en tu navegador:
+11. Accede a la aplicación en tu navegador:
+
     ```
     http://localhost:3000/
     ```
+
 ## Tecnologías utilizadas
 - React JS: Biblioteca de JavaScript para construir interfaces de usuario.
 - REST Framework de Django: Herramienta que facilita la creación de APIs bajo la arquitectura REST.

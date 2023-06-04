@@ -193,7 +193,6 @@ const PlayerSearch = () => {
         const updatedTransferLists = transferLists.map((list) =>
           list.id === selectedList.id ? response.data : list
         );
-        console.log(response);
         setTransferLists(updatedTransferLists);
         setSelectedList(response.data);
         setModalSuccessMessage(response.data.message);

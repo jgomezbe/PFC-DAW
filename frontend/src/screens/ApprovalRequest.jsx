@@ -37,7 +37,6 @@ function ApprovalRequest() {
         }
 
         setUserId(currentUserResponse.data.id);
-        console.log(approvalRequestResponse.data, isApproved);
         if (approvalRequestResponse.data.message) {
           setError("Ya has enviado una solicitud de verificación");
           setHasSentRequest(true);
