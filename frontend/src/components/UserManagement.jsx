@@ -66,8 +66,7 @@ const UserManagement = () => {
           <div className="col-md-4 mb-4" key={request.id}>
             <div className="card">
               <div className="card-body">
-                <h5 className="card-title">{request.nombre}</h5>
-                <p className="card-text">{request.apellidos}</p>
+                <h5 className="card-title">{request.nombre} {request.apellidos}</h5>
                 <p className="card-text">{request.mensaje}</p>
                 <button
                   className="btn btn-success mr-2"

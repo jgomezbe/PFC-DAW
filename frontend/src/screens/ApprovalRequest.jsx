@@ -14,7 +14,7 @@ function ApprovalRequest() {
   const [success, setSuccess] = useState("");
   const [hasSentRequest, setHasSentRequest] = useState(false);
   const [isApproved, setIsApproved] = useState(false);
-  const [userId, setUserId] = useState(null); // Nuevo estado para almacenar el user_id
+  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,28 +27,20 @@ function ApprovalRequest() {
           withCredentials: true,
         };
 
-        const currentUserResponse = await axios.get(
-          `${API_URL}/current-user/`,
-          config
-        );
+        const [currentUserResponse, approvalRequestResponse] = await Promise.all([
+          axios.get(`${API_URL}/current-user/`, config),
+          axios.get(`${API_URL}/approval-request/`, config)
+        ]);
+
         if (currentUserResponse.data.is_approved) {
           setIsApproved(true);
         }
 
-        setUserId(currentUserResponse.data.id); // Almacena el user_id en el estado
-
-        const approvalRequestResponse = await axios.get(
-          `${API_URL}/approval-request/`,
-          config
-        );
+        setUserId(currentUserResponse.data.id);
+        console.log(approvalRequestResponse.data, isApproved);
         if (approvalRequestResponse.data.message) {
-          setError(approvalRequestResponse.data.message);
-          if (
-            approvalRequestResponse.data.message ===
-            "Ya has enviado una solicitud de verificación"
-          ) {
-            setHasSentRequest(true);
-          }
+          setError("Ya has enviado una solicitud de verificación");
+          setHasSentRequest(true);
         }
       } catch (error) {
         console.log(error);
@@ -100,22 +92,7 @@ function ApprovalRequest() {
                     {error}
                   </div>
                 )}
-                {!hasSentRequest && !error && (
-                  <>
-                    {success && (
-                      <div className="alert alert-success" role="alert">
-                        {success}
-                      </div>
-                    )}
-                    {!success && !isApproved && (
-                      <ApprovalRequestForm
-                        onSubmit={handleSubmit}
-                        userId={userId} // Pasa el userId al componente ApprovalRequestForm
-                      />
-                    )}
-                  </>
-                )}
-                {hasSentRequest && !error && (
+                {hasSentRequest && (
                   <div className="alert alert-info" role="alert">
                     Ya has enviado una solicitud de verificación. Ponte en
                     contacto con el administrador.
@@ -125,6 +102,21 @@ function ApprovalRequest() {
                   <div className="alert alert-success" role="alert">
                     ¡Ya estás aprobado!
                   </div>
+                )}
+                {!hasSentRequest && !error && !isApproved && (
+                  <>
+                    {success && (
+                      <div className="alert alert-success" role="alert">
+                        {success}
+                      </div>
+                    )}
+                    {!success && (
+                      <ApprovalRequestForm
+                        onSubmit={handleSubmit}
+                        userId={userId}
+                      />
+                    )}
+                  </>
                 )}
               </div>
             </div>

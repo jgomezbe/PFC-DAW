@@ -7,8 +7,11 @@ const ChangePasswordScreen = () => {
     return (
         <div>
             <CustomNavbar />
-            <PasswordChangeForm />
+            <div className="container min-vh-100">
+                <PasswordChangeForm />
+            </div>
             <Footer />
+
         </div>
     );
 };

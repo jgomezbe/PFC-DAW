@@ -44,16 +44,19 @@ Para ejecutar el proyecto en un entorno local, sigue estos pasos:
 
 1. Clona el repositorio:
     https://github.com/jgomezbe/PFC-DAW.git
+
 2. Navega al directorio del proyecto:
 
     cd PFC-DAW
+
 3. Instala las dependencias del frontend:
 
     cd frontend
 
     npm install
 
-
+    npm install @fortawesome/fontawesome-free @csstools/normalize.css
+    
 4. Inicia el servidor de desarrollo del frontend:
 
     npm start
@@ -61,11 +64,13 @@ Para ejecutar el proyecto en un entorno local, sigue estos pasos:
 5. Abre otra terminal y navega al directorio del backend:
 
     cd ../backend
+
 6. Crea y activa un entorno virtual (opcional):
 
     python -m venv env
 
     source env/bin/activate
+
 7. Instala las dependencias del backend:
 
     pip install -r requirements.txt
@@ -77,11 +82,11 @@ Para ejecutar el proyecto en un entorno local, sigue estos pasos:
 9. Inicia el servidor de desarrollo del backend:
 
     python manage.py runserver
+
 10. Accede a la aplicación en tu navegador:
     ```
     http://localhost:3000/
     ```
-
 ## Tecnologías utilizadas
 - React JS: Biblioteca de JavaScript para construir interfaces de usuario.
 - REST Framework de Django: Herramienta que facilita la creación de APIs bajo la arquitectura REST.
@@ -89,12 +94,10 @@ Para ejecutar el proyecto en un entorno local, sigue estos pasos:
 ## Persona contribuyente
 - Javier Gómez Becerra
 ## Desarrollador del proyecto
-
 - Javier Gómez Becerra
 ## Licencia
 Este proyecto se encuentra bajo la Licencia [MIT](LICENSE).
 ## Conclusión
-
 En resumen, este proyecto consiste en una webapp para el control de derechos de formación en el ámbito del fútbol. Ha proporcionado funcionalidades de autenticación de usuarios, gestión de usuarios, consulta de jugadores y traspasos, consulta de estos entre otras, siendo los datos obtenidos del portal reconocido mundialmente TransferMarkt, una fuente de información más que contrastada. 
 
 Para mantener la aplicación al día con los avances tecnológicos y las necesidades del usuario, se pueden considerar los siguientes posibles cambios y mejoras:
